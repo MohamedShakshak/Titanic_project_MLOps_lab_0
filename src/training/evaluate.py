@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import pandas as pd
 import joblib
 
@@ -10,44 +11,71 @@ from src.config import DATA_DIR
 
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 MODELS_DIR = Path(__file__).resolve().parents[2] / "models"
+REPORTS_DIR = Path(__file__).resolve().parents[2] / "reports"
 
 
 def evaluate():
-    # Load processed data
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Load data
     data_path = PROCESSED_DATA_DIR / "train_processed.csv"
     df = pd.read_csv(data_path)
 
-    # Split features and target
     X = df.drop("Survived", axis=1)
     y = df["Survived"]
 
-    # Same split as training
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
 
     # Load models
-    lr = joblib.load(MODELS_DIR / "logistic_regression.pkl")
-    rf = joblib.load(MODELS_DIR / "random_forest.pkl")
+    models = {
+        "logistic_regression": joblib.load(MODELS_DIR / "logistic_regression.pkl"),
+        "random_forest": joblib.load(MODELS_DIR / "random_forest.pkl"),
+    }
 
-    # Evaluate function
-    def evaluate_model(model, X_val, y_val, name):
+    results = {}
+
+    for name, model in models.items():
         preds = model.predict(X_val)
 
-        acc = accuracy_score(y_val, preds)
-        prec = precision_score(y_val, preds)
-        rec = recall_score(y_val, preds)
-        f1 = f1_score(y_val, preds)
+        results[name] = {
+            "accuracy": accuracy_score(y_val, preds),
+            "precision": precision_score(y_val, preds),
+            "recall": recall_score(y_val, preds),
+            "f1_score": f1_score(y_val, preds),
+        }
 
-        print(f"\n{name}")
-        print(f"Accuracy : {acc:.4f}")
-        print(f"Precision: {prec:.4f}")
-        print(f"Recall   : {rec:.4f}")
-        print(f"F1 Score : {f1:.4f}")
+    # -------------------------
+    # Print results (NEW)
+    # -------------------------
+    print("\nModel Evaluation Results")
+    print("-" * 30)
 
-    # Evaluate both models
-    evaluate_model(lr, X_val, y_val, "Logistic Regression")
-    evaluate_model(rf, X_val, y_val, "Random Forest")
+    for model_name, metrics in results.items():
+        print(f"\n{model_name}")
+        for k, v in metrics.items():
+            print(f"{k}: {v:.4f}")
+
+    # -------------------------
+    # Save JSON
+    # -------------------------
+    json_path = REPORTS_DIR / "metrics.json"
+    with open(json_path, "w") as f:
+        json.dump(results, f, indent=4)
+
+    # -------------------------
+    # Save TXT
+    # -------------------------
+    txt_path = REPORTS_DIR / "metrics.txt"
+    with open(txt_path, "w") as f:
+        for model_name, metrics in results.items():
+            f.write(f"{model_name}\n")
+            for k, v in metrics.items():
+                f.write(f"{k}: {v:.4f}\n")
+            f.write("\n")
+
+    print(f"\nReports saved to {REPORTS_DIR}")
 
 
 if __name__ == "__main__":
