@@ -28,13 +28,6 @@ This project implements a complete ML pipeline:
 ```bash
 python -m src.trainer
 ```
-This will execute:
-
-Data download (src/dataset.py)
-Data preprocessing (src/features.py)
-Model training (src/modeling/train.py)
-Model evaluation (src/modeling/evaluate.py)
-Report generation (reports/)
 ------------------
 ## Project Organization
 ```
