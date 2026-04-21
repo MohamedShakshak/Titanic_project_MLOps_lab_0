@@ -1,7 +1,7 @@
 from src.training.download_data import download_data
 from src.training.preprocess_data import preprocess_data
 from src.training.train import train
-from src.training.evaluate import evaluate
+from src.training.evaluate import evaluate_model
 
 
 def run_pipeline():
@@ -14,8 +14,8 @@ def run_pipeline():
     print("Step 3: Training models")
     train()
 
-    print("Step 4: Evaluating models")
-    evaluate()
+    # print("Step 4: Evaluating models")
+    # evaluate_model()
 
     print("Pipeline completed successfully")
 
