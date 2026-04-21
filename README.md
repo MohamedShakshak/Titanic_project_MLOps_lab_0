@@ -34,6 +34,7 @@ Data preprocessing (src/features.py)
 Model training (src/modeling/train.py)
 Model evaluation (src/modeling/evaluate.py)
 Report generation (reports/)
+------
 
 ## Project Structure
 ```
