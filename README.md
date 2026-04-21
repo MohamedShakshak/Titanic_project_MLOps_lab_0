@@ -27,8 +27,10 @@ This project implements a complete ML pipeline:
 
 ```bash
 python -m src.trainer
-
+```
+------------------
 ## Project Organization
+```
 ├── data
 │   ├── external
 │   ├── interim
