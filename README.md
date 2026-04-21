@@ -4,10 +4,38 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-A short description of the project.
+# MLOps_Lab0
 
-## Project Organization
+A simple end-to-end MLOps pipeline built on the Titanic dataset.  
+The project demonstrates a full machine learning workflow including data ingestion, preprocessing, model training, evaluation, and report generation.
 
+---
+
+## Pipeline Overview
+
+This project implements a complete ML pipeline:
+
+1. Download dataset from Kaggle (via kagglehub)
+2. Preprocess raw data
+3. Train multiple machine learning models
+4. Evaluate models using multiple metrics
+5. Save results into reports
+
+---
+
+## How to Run the Full Pipeline
+
+```bash
+python -m src.trainer
+
+This will execute:
+Data download (src/dataset.py)
+Data preprocessing (src/features.py)
+Model training (src/modeling/train.py)
+Model evaluation (src/modeling/evaluate.py)
+Report generation (reports/)
+
+## Project Structure
 ```
 ├── LICENSE            <- Open-source license if one is chosen
 ├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
