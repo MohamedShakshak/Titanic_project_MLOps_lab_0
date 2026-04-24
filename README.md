@@ -62,7 +62,7 @@ This project demonstrates a full machine learning workflow emphasizing MLOps bes
 The primary entry point orchestrates downloading data, preprocessing, training, and evaluation. To execute the entire pipeline end-to-end:
 
 ```bash
-python -m src.trainer
+python -m trainer
 ```
 
 ### Configuration (Hydra)
@@ -72,29 +72,11 @@ This project uses [Hydra](https://hydra.cc/) for hierarchical configuration. The
 You can easily swap out models or change parameters directly from the command line without modifying the code. For example, to switch from the default model to a Random Forest:
 
 ```bash
-python -m src.trainer model=random_forest
+python -m trainer model=random_forest
 ```
 
 ---
 
-## Testing & Linting
-
-This project uses `pytest` for unit testing and `ruff` for fast linting and formatting.
-
-- **Run tests**:
-  ```bash
-  make test
-  ```
-- **Format code**:
-  ```bash
-  make format
-  ```
-- **Lint code**:
-  ```bash
-  make lint
-  ```
-
----
 
 ## Project Organization
 
