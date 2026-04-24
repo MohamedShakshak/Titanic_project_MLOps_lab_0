@@ -3,8 +3,11 @@ import shutil
 import logging
 import kagglehub
 
+from dotenv import load_dotenv
 from omegaconf import DictConfig
 from hydra.utils import to_absolute_path
+
+load_dotenv()  # loads .env into environment variables automatically
 
 logger = logging.getLogger(__name__)
 
@@ -18,11 +21,11 @@ def download_data(cfg: DictConfig) -> None:
     logger.info("Downloading competition data: %s", competition)
 
     downloaded_path = Path(
-        kagglehub.competition_download(competition)
+        kagglehub.dataset_download("yasserh/titanic-dataset")
     )
 
     for file in downloaded_path.glob("*"):
-        destination = raw_dir / file.name
+        destination = raw_dir / "train.csv"
 
         if destination.exists() and not cfg.data.overwrite:
             logger.info("Skipping existing file: %s", file.name)
