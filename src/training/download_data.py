@@ -1,16 +1,34 @@
 from pathlib import Path
 import shutil
+import logging
 import kagglehub
 
-from src.config import RAW_DATA_DIR
+from omegaconf import DictConfig
+from hydra.utils import to_absolute_path
+
+logger = logging.getLogger(__name__)
 
 
-def download_data():
-    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+def download_data(cfg: DictConfig) -> None:
+    raw_dir = Path(to_absolute_path(cfg.data.raw_dir))
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    path = kagglehub.dataset_download("yasserh/titanic-dataset")
+    competition = cfg.data.competition_name
 
-    for file in Path(path).glob("*"):
-        shutil.copy(file, RAW_DATA_DIR / "train.csv")
+    logger.info("Downloading competition data: %s", competition)
 
-    print("Data downloaded to raw/")
+    downloaded_path = Path(
+        kagglehub.competition_download(competition)
+    )
+
+    for file in downloaded_path.glob("*"):
+        destination = raw_dir / file.name
+
+        if destination.exists() and not cfg.data.overwrite:
+            logger.info("Skipping existing file: %s", file.name)
+            continue
+
+        shutil.copy(file, destination)
+        logger.info("Copied %s", file.name)
+
+    logger.info("Download complete.")

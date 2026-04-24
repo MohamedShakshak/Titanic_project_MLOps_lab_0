@@ -25,6 +25,7 @@ dependencies = [
     "mkdocs",
     "notebook",
     "numpy",
+    "omegaconf>=2.3.0",
     "pandas",
     "pip",
     "pytest",
