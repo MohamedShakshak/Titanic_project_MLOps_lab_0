@@ -1,0 +1,5 @@
+defaults:
+  - data: default
+  - model: logistic      # swap to random_forest from CLI
+  - training: default
+  - _self_
