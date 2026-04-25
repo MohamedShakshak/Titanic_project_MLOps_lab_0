@@ -1,0 +1,36 @@
+stages:
+  download:
+    cmd: uv run python trainer.py --config-name config stage=download
+    deps:
+      - src/training/data/download_data.py
+    params:
+      - params.yaml:
+        - data.competition_name
+        - data.raw_dir
+        - data.overwrite
+    outs:
+      - data/raw/train.csv
+      # - data/raw/test.csv
+  
+  train:
+    cmd: uv run python trainer.py --config-name config stage=train
+    deps:
+      - src/training/train.py
+      - src/training/features/preprocess.py
+      - src/training/features/transformers.py
+      - src/training/pipeline.py
+      - src/training/evaluate.py
+      - data/raw/train.csv
+    params:
+      - params.yaml:
+          - training.test_size
+          - training.random_state
+          - model.name
+          - model.C
+          - model.max_iter
+    outs:
+      - models/
+    metrics:
+      - reports/logistic_metrics.json:
+          cache: false
+
