@@ -1,0 +1,20 @@
+# params.yaml
+data:
+  raw_train_path: data/raw/train.csv
+  # raw_test_path: data/raw/test.csv
+  raw_dir: data/raw
+  competition_name: titanic
+  overwrite: true
+
+training:
+  test_size: 0.2
+  random_state: 42
+  model_output_dir: models/
+  processed_output_dir: data/processed/
+  metrics_output_dir: reports/
+
+model:
+  name: logistic
+  C: 1.0
+  max_iter: 1000
+  random_state: 42
