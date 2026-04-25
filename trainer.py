@@ -24,7 +24,7 @@ def run_download(cfg: DictConfig) -> None:
     download_data(cfg)
 
 def run_train(cfg: DictConfig) -> None:
-    train_df, _ = load_raw_data(cfg)
+    train_df= load_raw_data(cfg)
 
     X = train_df.drop(columns=["Survived"])
     y = train_df["Survived"]
@@ -35,7 +35,7 @@ def run_train(cfg: DictConfig) -> None:
     )
     logger.info("Train size: %d, Val size: %d", len(X_train), len(X_val))
 
-    processed_dir = Path(to_absolute_path(cfg.training.processed_output_dir))
+    processed_dir = Path(to_absolute_path(cfg.data.processed_path))
     save_processed_data(X_train, X_val, y_train, y_val, processed_dir)
 
     pipeline = build_pipeline(build_preprocessor(), get_model(cfg))
