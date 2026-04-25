@@ -20,19 +20,12 @@ from src.training.train import get_model
 
 logger = logging.getLogger(__name__)
 
-
-@hydra.main(config_path="conf", config_name="config", version_base=None)
-def main(cfg: DictConfig) -> None:
-    logger.info("Pipeline started")
-    logger.info("Parameters:\n%s", OmegaConf.to_yaml(cfg))
-
-    # Step 1 — Download
+def run_download(cfg: DictConfig) -> None:
     download_data(cfg)
 
-    # Step 2 — Load
-    train_df= load_raw_data(cfg)
+def run_train(cfg: DictConfig) -> None:
+    train_df, _ = load_raw_data(cfg)
 
-    # Step 3 — Split
     X = train_df.drop(columns=["Survived"])
     y = train_df["Survived"]
     X_train, X_val, y_train, y_val = train_test_split(
@@ -42,16 +35,13 @@ def main(cfg: DictConfig) -> None:
     )
     logger.info("Train size: %d, Val size: %d", len(X_train), len(X_val))
 
-    # Step 4 — Save processed splits
-    processed_dir = Path(to_absolute_path(cfg.data.processed_path))
+    processed_dir = Path(to_absolute_path(cfg.training.processed_output_dir))
     save_processed_data(X_train, X_val, y_train, y_val, processed_dir)
 
-    # Step 5 — Build and train pipeline
     pipeline = build_pipeline(build_preprocessor(), get_model(cfg))
     pipeline.fit(X_train, y_train)
     logger.info("Training complete.")
 
-    # Step 6 — Evaluate and save metrics
     metrics = evaluate_model(pipeline, X_val, y_val)
     for k, v in metrics.items():
         logger.info("%s: %.4f", k, v)
@@ -59,11 +49,26 @@ def main(cfg: DictConfig) -> None:
     metrics_dir = Path(to_absolute_path(cfg.training.metrics_output_dir))
     save_metrics(metrics, cfg.model.name, metrics_dir)
 
-    # Step 7 — Save model artifact
     models_dir = Path(to_absolute_path(cfg.training.model_output_dir))
     models_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(pipeline, models_dir / f"{cfg.model.name}_pipeline.pkl")
     logger.info("Saved pipeline to %s", models_dir)
+
+
+@hydra.main(config_path="conf", config_name="config", version_base=None)
+def main(cfg: DictConfig) -> None:
+    logger.info("Pipeline started — stage: %s", cfg.stage)
+    logger.info("Parameters:\n%s", OmegaConf.to_yaml(cfg))
+
+    if cfg.stage == "download":
+        run_download(cfg)
+    elif cfg.stage == "train":
+        run_train(cfg)
+    elif cfg.stage == "all":
+        run_download(cfg)
+        run_train(cfg)
+    else:
+        raise ValueError(f"Unknown stage: {cfg.stage}")
 
     logger.info("Pipeline finished.")
 
