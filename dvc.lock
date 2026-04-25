@@ -1,0 +1,63 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: uv run python trainer.py --config-name config stage=download
+    deps:
+    - path: src/training/data/download_data.py
+      hash: md5
+      md5: 4e29521bcfeb2f380f590190357af642
+      size: 1034
+    params:
+      params.yaml:
+        data.competition_name: titanic
+        data.overwrite: true
+        data.raw_dir: data/raw
+    outs:
+    - path: data/raw/train.csv
+      hash: md5
+      md5: 2309cc5f04782ed9bb6016d9f4e381cf
+      size: 61194
+  train:
+    cmd: uv run python trainer.py --config-name config stage=train
+    deps:
+    - path: data/raw/train.csv
+      hash: md5
+      md5: 2309cc5f04782ed9bb6016d9f4e381cf
+      size: 61194
+    - path: src/training/evaluate.py
+      hash: md5
+      md5: 331683921ee7b7b6d3b3fe3361949d44
+      size: 1202
+    - path: src/training/features/preprocess.py
+      hash: md5
+      md5: 549d31e6501c2967733434901009e658
+      size: 1371
+    - path: src/training/features/transformers.py
+      hash: md5
+      md5: 5cad1b80afdf7638d9b7ab019873226f
+      size: 1818
+    - path: src/training/pipeline.py
+      hash: md5
+      md5: 24dcd7521fc5f072cfdbcabf617c913d
+      size: 266
+    - path: src/training/train.py
+      hash: md5
+      md5: 4c84306d789a6963cb4400741857993e
+      size: 1189
+    params:
+      params.yaml:
+        model.C: 1.0
+        model.max_iter: 1000
+        model.name: logistic
+        training.random_state: 42
+        training.test_size: 0.2
+    outs:
+    - path: models/
+      hash: md5
+      md5: 6e76e7850c416a9c788eafc7d5a8e129.dir
+      size: 5434
+      nfiles: 1
+    - path: reports/logistic_metrics.json
+      hash: md5
+      md5: 263f559f5cda24a5a97c88d4c993c5ce
+      size: 171
