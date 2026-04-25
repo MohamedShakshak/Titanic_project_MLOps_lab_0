@@ -3,3 +3,5 @@ defaults:
   - model: logistic      # swap to random_forest from CLI
   - training: default
   - _self_
+
+stage: all    # override with stage=download or stage=train
