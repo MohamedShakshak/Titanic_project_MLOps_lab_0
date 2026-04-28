@@ -54,11 +54,16 @@ stages:
         training.random_state: 42
         training.test_size: 0.2
     outs:
+    - path: data/processed/
+      hash: md5
+      md5: e60fbfc3b6f9ef102c72bee5b4f4efd0.dir
+      size: 63868
+      nfiles: 5
     - path: models/random_forest_pipeline.pkl
       hash: md5
       md5: ff1dbc3ecefefe20859c45f3aed16847
       size: 429595
     - path: reports/random_forest_metrics.json
       hash: md5
-      md5: 769b93a65e2f99bb9aea90d6a330ef17
+      md5: d5e262aeaf49a776c685aeff765d76a2
       size: 176

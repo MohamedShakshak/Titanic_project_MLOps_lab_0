@@ -31,6 +31,8 @@ stages:
           - model.n_estimators    
           - model.max_depth      
     outs:
+      - data/processed/:
+          persist: true
       - models/${model.name}_pipeline.pkl:
           persist: true
     metrics:
