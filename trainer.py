@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import hydra
+import yaml
 import joblib
 import logging
 from pathlib import Path
@@ -57,6 +58,12 @@ def run_train(cfg: DictConfig) -> None:
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: DictConfig) -> None:
+    # Load params.yaml and merge it ON TOP of Hydra config
+    # This means DVC's changes to params.yaml take effect
+    OmegaConf.set_struct(cfg, False)
+    params = OmegaConf.load("./params.yaml")
+    cfg = OmegaConf.merge(cfg, params)
+    
     logger.info("Pipeline started — stage: %s", cfg.stage)
     logger.info("Parameters:\n%s", OmegaConf.to_yaml(cfg))
 
