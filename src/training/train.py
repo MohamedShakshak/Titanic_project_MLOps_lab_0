@@ -21,15 +21,15 @@ def get_model(cfg: DictConfig):
     """Instantiate model from config."""
     if cfg.model.name == "logistic":
         return LogisticRegression(
-            C=cfg.model.C,
-            max_iter=cfg.model.max_iter,
-            random_state=cfg.model.random_state,
+            C=cfg.model.get("C", 1.0),
+            max_iter=cfg.model.get("max_iter", 1000),
+            random_state=cfg.model.get("random_state", 42),
         )
     elif cfg.model.name == "random_forest":
         return RandomForestClassifier(
-            n_estimators=cfg.model.n_estimators,
-            max_depth=cfg.model.max_depth,
-            random_state=cfg.model.random_state,
+            n_estimators=cfg.model.get("n_estimators", 100),
+            max_depth=cfg.model.get("max_depth", 5),
+            random_state=cfg.model.get("random_state", 42),
         )
     else:
         raise ValueError(f"Unknown model name: {cfg.model.name}")
