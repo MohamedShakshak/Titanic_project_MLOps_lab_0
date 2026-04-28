@@ -28,9 +28,12 @@ stages:
           - model.name
           - model.C
           - model.max_iter
+          - model.n_estimators    
+          - model.max_depth      
     outs:
-      - models/
+      - models/${model.name}_pipeline.pkl:
+          persist: true
     metrics:
-      - reports/logistic_metrics.json:
+      - reports/${model.name}_metrics.json:
           cache: false
 
