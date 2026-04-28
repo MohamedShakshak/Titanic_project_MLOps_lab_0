@@ -1,4 +1,4 @@
-# Titanic Survival MLOps Pipeline
+# Titanic Survival MLOps Pipeline with DVC
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/Cookiecutter-Data%20Science-328F97?logo=cookiecutter" alt="Cookiecutter Data Science badge" />
@@ -6,29 +6,24 @@
 
 ## Overview
 
-This project implements an end-to-end machine learning pipeline for the Titanic survival prediction task, with an emphasis on clean structure, reproducibility, and practical MLOps workflows.
+This project implements an end-to-end machine learning pipeline for the Titanic survival prediction task, with a focus on reproducibility, modularity, and practical MLOps workflows.
 
-The pipeline covers:
-
-- Automated dataset download
-- Data loading and preprocessing
-- Feature engineering and transformation
-- Model training with configurable algorithms
-- Evaluation and metric export
-- Model artifact persistence
-- Centralized configuration management with Hydra
+The project now uses **DVC** to orchestrate and track the pipeline stages, outputs, metrics, and parameters. Hydra is still used for structured configuration, while DVC manages experiment flow and artifact tracking.
 
 ## Features
 
 - **Reproducible environment** managed with `uv`
-- **Config-driven experiments** using Hydra configuration groups
+- **Pipeline orchestration with DVC**
+- **Parameter tracking** through `params.yaml`
+- **Config-driven workflow** using Hydra
 - **Modular training code** under `src/training`
-- **Multiple model choices** including Logistic Regression and Random Forest
-- **Saved outputs** for trained models, processed data, and evaluation metrics
+- **Multiple model options** including Logistic Regression and Random Forest
+- **Tracked outputs and metrics** for datasets, models, and reports
 
 ## Tech Stack
 
 - Python `3.11`
+- DVC
 - Hydra
 - scikit-learn
 - pandas
@@ -39,7 +34,8 @@ The pipeline covers:
 ## Project Structure
 
 ```text
-Titanic_project_MLOps_lab_0/
+Titanic_project_MLOps/
+|-- .dvc/
 |-- conf/
 |   |-- config.yaml
 |   |-- data/
@@ -76,9 +72,13 @@ Titanic_project_MLOps_lab_0/
 |           |-- preprocess.py
 |           `-- transformers.py
 |-- tests/
+|-- .dvcignore
 |-- .env
 |-- .gitignore
+|-- dvc.lock
+|-- dvc.yaml
 |-- Makefile
+|-- params.yaml
 |-- pyproject.toml
 |-- trainer.py
 `-- README.md
@@ -90,7 +90,7 @@ Titanic_project_MLOps_lab_0/
 
 ```bash
 git clone <repository-url>
-cd Titanic_project_MLOps_lab_0
+cd Titanic_project_MLOps
 ```
 
 2. Create a virtual environment:
@@ -113,13 +113,13 @@ make create_environment
 source .venv/bin/activate
 ```
 
-4. Install project dependencies:
+4. Install dependencies:
 
 ```bash
 make requirements
 ```
 
-You can also install dependencies directly with:
+Or directly with:
 
 ```bash
 uv sync
@@ -127,47 +127,126 @@ uv sync
 
 ## Data Access
 
-The pipeline downloads the Titanic dataset automatically through `kagglehub`.
+The dataset is downloaded automatically through `kagglehub` as part of the DVC pipeline.
 
-Before running the project, make sure your Kaggle credentials are available. Typically, this means placing `kaggle.json` in one of the following locations:
+Before running the project, make sure your Kaggle credentials are available, typically by placing `kaggle.json` in:
 
 - The project root
-- The default Kaggle credentials directory for your system
+- Your default Kaggle credentials directory
 
-## Running the Pipeline
+## DVC Pipeline
 
-Run the full workflow with:
+This project uses a two-stage DVC pipeline defined in `dvc.yaml`:
+
+1. `download`
+2. `train`
+
+### Stage: `download`
+
+This stage downloads the Titanic dataset and stores it in:
+
+```text
+data/raw/train.csv
+```
+
+Run it with:
+
+```bash
+dvc repro download
+```
+
+### Stage: `train`
+
+This stage:
+
+1. Loads the raw dataset
+2. Splits the data into train and validation sets
+3. Applies preprocessing
+4. Trains the selected model
+5. Evaluates the model
+6. Saves processed data, metrics, and model artifacts
+
+Run it with:
+
+```bash
+dvc repro train
+```
+
+### Run the Full Pipeline
+
+To execute all DVC stages in order:
+
+```bash
+dvc repro
+```
+
+## Parameters
+
+Project parameters are tracked in `params.yaml`. This file controls:
+
+- Data settings
+- Training split settings
+- Model selection
+- Model hyperparameters
+- Output locations
+
+Example model selection:
+
+```yaml
+model:
+  name: random_forest
+```
+
+To switch models, update `params.yaml` and rerun:
+
+```bash
+dvc repro
+```
+
+## Hydra Usage
+
+Hydra configuration is stored under `conf/`, while DVC-controlled values are merged from `params.yaml` at runtime.
+
+The default stage in `conf/config.yaml` is:
+
+```yaml
+stage: all
+```
+
+You can still run the script directly if needed:
 
 ```bash
 python trainer.py
 ```
 
-This will:
-
-1. Download the dataset into `data/raw/`
-2. Load and split the training data
-3. Build the preprocessing and modeling pipeline
-4. Train the selected model
-5. Evaluate performance on the validation split
-6. Save metrics to `reports/`
-7. Save the trained pipeline to `models/`
-
-## Configuration
-
-Hydra is used to manage configuration files under `conf/`.
-
-Default configuration groups:
-
-- `conf/data/default.yaml`
-- `conf/model/logistic.yaml`
-- `conf/model/random_forest.yaml`
-- `conf/training/default.yaml`
-
-Example: run the pipeline with the Random Forest model:
+Or run a specific stage:
 
 ```bash
-python trainer.py model=random_forest
+python trainer.py stage=download
+python trainer.py stage=train
 ```
+
+For normal project usage, the recommended entry point is:
+
+```bash
+dvc repro
+```
+
+## Outputs
+
+DVC tracks the main outputs of the pipeline, including:
+
+- Raw data in `data/raw/`
+- Processed data in `data/processed/`
+- Trained models in `models/`
+- Metrics in `reports/`
+
+Examples of generated artifacts:
+
+- `data/raw/train.csv`
+- `data/processed/`
+- `models/random_forest_pipeline.pkl`
+- `reports/random_forest_metrics.json`
 
 ## Development Commands
 
@@ -195,17 +274,8 @@ Format the codebase:
 make format
 ```
 
-## Outputs
-
-Typical generated outputs include:
-
-- Processed datasets in `data/processed/`
-- Trained model artifacts in `models/`
-- Evaluation metrics in `reports/`
-- Hydra run outputs in `outputs/`
-
 ## Notes
 
-- The repository is structured around a modular training pipeline for maintainability and extension.
-- Model behavior can be changed through configuration without modifying source code.
-- The current setup is suitable for experimentation, local development, and introductory MLOps practice.
+- DVC is the main workflow runner for this repository.
+- Hydra provides structured configuration, while `params.yaml` is used for DVC-tracked runtime parameters.
+- The project is designed for reproducible local experimentation and introductory MLOps practice.
