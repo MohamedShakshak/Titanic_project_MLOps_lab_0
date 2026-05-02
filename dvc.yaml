@@ -30,12 +30,23 @@ stages:
           - model.max_iter
           - model.n_estimators    
           - model.max_depth      
+    # outs:
+    #   - data/processed/:
+    #       persist: true
+    #   - models/${model.name}_pipeline.pkl:
+    #       persist: true
+    # metrics:
+    #   - reports/${model.name}_metrics.json:
+    #       cache: false
     outs:
       - data/processed/:
           persist: true
-      - models/${model.name}_pipeline.pkl:
+      - models/:
           persist: true
-    metrics:
-      - reports/${model.name}_metrics.json:
           cache: false
+    metrics:
+      - reports/:
+          persist: true
+          cache: false
+    
 

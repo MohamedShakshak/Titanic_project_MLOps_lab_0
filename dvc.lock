@@ -59,11 +59,13 @@ stages:
       md5: e60fbfc3b6f9ef102c72bee5b4f4efd0.dir
       size: 63868
       nfiles: 5
-    - path: models/random_forest_pipeline.pkl
+    - path: models/
       hash: md5
-      md5: ff1dbc3ecefefe20859c45f3aed16847
-      size: 429595
-    - path: reports/random_forest_metrics.json
+      md5: 19ee67138d27ca5e6cd6b16901ef217c.dir
+      size: 435029
+      nfiles: 2
+    - path: reports/
       hash: md5
-      md5: d5e262aeaf49a776c685aeff765d76a2
-      size: 176
+      md5: 6081db3c123e7ba767c53611ad3b107e.dir
+      size: 347
+      nfiles: 2
