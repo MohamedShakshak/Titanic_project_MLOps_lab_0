@@ -43,7 +43,6 @@ stages:
           persist: true
       - models/:
           persist: true
-          cache: false
     metrics:
       - reports/:
           persist: true
