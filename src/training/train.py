@@ -1,36 +1,39 @@
 import logging
 
-import hydra
-import joblib
-import pandas as pd
-from hydra.utils import to_absolute_path
-from omegaconf import DictConfig
-from pathlib import Path
+from omegaconf import DictConfig, OmegaConf
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-
-from src.training.data.load import load_raw_data
-from src.training.features.preprocess import build_preprocessor
-from src.training.pipeline import build_pipeline
-from src.training.evaluate import evaluate_model
 
 logger = logging.getLogger(__name__)
 
+
+def get_model_params(cfg: DictConfig) -> dict:
+    """Return parameters for the selected model."""
+    model_name = cfg.model.name
+    params = cfg.model.get("params", {})
+
+    if model_name in params:
+        params = params[model_name]
+
+    return OmegaConf.to_container(params, resolve=True) or {}
+
+
 def get_model(cfg: DictConfig):
     """Instantiate model from config."""
-    if cfg.model.name == "logistic":
+    model_name = cfg.model.name
+    model_params = get_model_params(cfg)
+
+    if model_name == "logistic":
         return LogisticRegression(
-            C=cfg.model.get("C", 1.0),
-            max_iter=cfg.model.get("max_iter", 1000),
-            random_state=cfg.model.get("random_state", 42),
+            C=model_params.get("C", 1.0),
+            max_iter=model_params.get("max_iter", 1000),
+            random_state=model_params.get("random_state", 42),
         )
-    elif cfg.model.name == "random_forest":
+    elif model_name == "random_forest":
         return RandomForestClassifier(
-            n_estimators=cfg.model.get("n_estimators", 100),
-            max_depth=cfg.model.get("max_depth", 5),
-            random_state=cfg.model.get("random_state", 42),
+            n_estimators=model_params.get("n_estimators", 100),
+            max_depth=model_params.get("max_depth", 5),
+            random_state=model_params.get("random_state", 42),
         )
     else:
-        raise ValueError(f"Unknown model name: {cfg.model.name}")
-
+        raise ValueError(f"Unknown model name: {model_name}")

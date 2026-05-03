@@ -23,7 +23,7 @@ from src.training.data.load import load_raw_data, save_processed_data
 from src.training.evaluate import evaluate_model, save_metrics
 from src.training.features.preprocess import build_preprocessor
 from src.training.pipeline import build_pipeline
-from src.training.train import get_model
+from src.training.train import get_model, get_model_params
 
 logger = logging.getLogger(__name__)
 
@@ -55,16 +55,14 @@ def run_train(cfg: DictConfig) -> None:
     save_processed_data(X_train, X_val, y_train, y_val, processed_dir)
 
     pipeline = build_pipeline(build_preprocessor(), get_model(cfg))
+    selected_model_params = get_model_params(cfg)
     
     with mlflow.start_run(run_name= cfg.model.name):
         mlflow.log_params({
             "model_name": cfg.model.name,
             "test_size": cfg.training.test_size,
             "random_state": cfg.training.random_state,
-            "C": cfg.model.get("C", None),
-            "max_iter": cfg.model.get("max_iter", None),
-            "n_estimators": cfg.model.get("n_estimators", None),
-            "max_depth": cfg.model.get("max_depth", None),
+            **selected_model_params,
         })
         pipeline.fit(X_train, y_train)
         logger.info("Training complete.")

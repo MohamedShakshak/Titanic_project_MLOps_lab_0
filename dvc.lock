@@ -42,15 +42,20 @@ stages:
       size: 266
     - path: src/training/train.py
       hash: md5
-      md5: aa13f4757aeef9c19c38b08d466713b1
-      size: 1258
+      md5: 2c912d8826ab713eb128a57e53eee9e9
+      size: 1277
     params:
       params.yaml:
-        model.C: 1.0
-        model.max_depth: 8
-        model.max_iter: 1000
-        model.n_estimators: 200
-        model.name: logistic
+        model.name: random_forest
+        model.params:
+          logistic:
+            C: 1.0
+            max_iter: 1000
+            random_state: 42
+          random_forest:
+            n_estimators: 200
+            max_depth: 8
+            random_state: 42
         training.random_state: 42
         training.test_size: 0.2
     outs:
@@ -66,5 +71,5 @@ stages:
       nfiles: 2
     - path: reports/metrics.json
       hash: md5
-      md5: ce0fc07ff570ea3f2e401802bd179ac1
-      size: 171
+      md5: e8fafe36856a6caa70de33a670c07cda
+      size: 175

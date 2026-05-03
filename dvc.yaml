@@ -26,10 +26,7 @@ stages:
           - training.test_size
           - training.random_state
           - model.name
-          - model.C
-          - model.max_iter
-          - model.n_estimators    
-          - model.max_depth      
+          - model.params
     outs:
       - data/processed/:
           persist: true
