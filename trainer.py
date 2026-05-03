@@ -1,12 +1,18 @@
 # trainer.py
 from dotenv import load_dotenv
+import mlflow.sklearn
 load_dotenv()
 
+import os
 import hydra
 import yaml
 import joblib
 import logging
 from pathlib import Path
+
+import mlflow
+import mlflow.sklearn
+from mlflow.models.signature import infer_signature
 
 from hydra.utils import to_absolute_path
 from omegaconf import DictConfig, OmegaConf
@@ -20,6 +26,15 @@ from src.training.pipeline import build_pipeline
 from src.training.train import get_model
 
 logger = logging.getLogger(__name__)
+
+def setup_mlflow(cfg: DictConfig) -> None:
+    """Configure MLflow tracking URI and experiment."""
+    
+    tracking_uri = os.environ.get("MLFLOW_TRACKING_URI",  "mlruns")
+    mlflow.set_tracking_uri(tracking_uri)
+    mlflow.set_experiment(cfg.mlflow.experiment_name)
+    logger.info("MLflow tracking URI: %s", tracking_uri)
+    logger.info("MLflow experiment: %s", cfg.mlflow.experiment_name)
 
 def run_download(cfg: DictConfig) -> None:
     download_data(cfg)
@@ -40,12 +55,39 @@ def run_train(cfg: DictConfig) -> None:
     save_processed_data(X_train, X_val, y_train, y_val, processed_dir)
 
     pipeline = build_pipeline(build_preprocessor(), get_model(cfg))
-    pipeline.fit(X_train, y_train)
-    logger.info("Training complete.")
+    
+    with mlflow.start_run(run_name= cfg.model.name):
+        mlflow.log_params({
+            "model_name": cfg.model.name,
+            "test_size": cfg.training.test_size,
+            "random_state": cfg.training.random_state,
+            "C": cfg.model.get("C", None),
+            "max_iter": cfg.model.get("max_iter", None),
+            "n_estimators": cfg.model.get("n_estimators", None),
+            "max_depth": cfg.model.get("max_depth", None),
+        })
+        pipeline.fit(X_train, y_train)
+        logger.info("Training complete.")
 
-    metrics = evaluate_model(pipeline, X_val, y_val)
-    for k, v in metrics.items():
-        logger.info("%s: %.4f", k, v)
+        metrics = evaluate_model(pipeline, X_val, y_val)
+        for k, v in metrics.items():
+            logger.info("%s: %.4f", k, v)
+        
+        mlflow.log_metrics(metrics)
+        
+        signature = infer_signature(X_train, pipeline.predict(X_val))
+        mlflow.sklearn.log_model(
+            sk_model=pipeline,
+            artifact_path="models",
+            signature=signature,
+            input_example=X_train.head(3),
+            registered_model_name="titanic-classifier",
+        )
+        mlflow.log_artifact("params.yaml")
+        run_id = mlflow.active_run().info.run_id
+        logger.info("MLflow run ID: %s", run_id)
+        
+        
 
     metrics_dir = Path(to_absolute_path(cfg.training.metrics_output_dir))
     save_metrics(metrics, cfg.model.name, metrics_dir)
@@ -67,6 +109,7 @@ def main(cfg: DictConfig) -> None:
     logger.info("Pipeline started — stage: %s", cfg.stage)
     logger.info("Parameters:\n%s", OmegaConf.to_yaml(cfg))
 
+    setup_mlflow(cfg)
     if cfg.stage == "download":
         run_download(cfg)
     elif cfg.stage == "train":

@@ -2,6 +2,7 @@ defaults:
   - data: default
   - model: logistic      # swap to random_forest from CLI
   - training: default
+  - mlflow: default
   - _self_
 
 stage: all    # override with stage=download or stage=train

@@ -33,9 +33,9 @@ stages:
     outs:
       - data/processed/:
           persist: true
-      - models/${model.name}_pipeline.pkl:
+      - models/:
           persist: true
     metrics:
-      - reports/${model.name}_metrics.json:
+      - reports/metrics.json:
           cache: false
 

@@ -34,7 +34,7 @@ def save_metrics(
     metrics["timestamp"] = datetime.now().isoformat()
 
     # Save as JSON — easier to parse later than txt
-    output_path = output_dir / f"{model_name}_metrics.json"
+    output_path = output_dir / "metrics.json"
     with open(output_path, "w") as f:
         json.dump(metrics, f, indent=2)
 

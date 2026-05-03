@@ -26,8 +26,8 @@ stages:
       size: 61194
     - path: src/training/evaluate.py
       hash: md5
-      md5: 331683921ee7b7b6d3b3fe3361949d44
-      size: 1202
+      md5: 141b0928d942e7647298873b64a5b607
+      size: 1188
     - path: src/training/features/preprocess.py
       hash: md5
       md5: 549d31e6501c2967733434901009e658
@@ -47,9 +47,9 @@ stages:
     params:
       params.yaml:
         model.C: 1.0
-        model.max_depth: 5
+        model.max_depth: 8
         model.max_iter: 1000
-        model.n_estimators: 100
+        model.n_estimators: 200
         model.name: random_forest
         training.random_state: 42
         training.test_size: 0.2
@@ -59,11 +59,12 @@ stages:
       md5: e60fbfc3b6f9ef102c72bee5b4f4efd0.dir
       size: 63868
       nfiles: 5
-    - path: models/random_forest_pipeline.pkl
+    - path: models/
       hash: md5
-      md5: ff1dbc3ecefefe20859c45f3aed16847
-      size: 429595
-    - path: reports/random_forest_metrics.json
+      md5: 83d36f66077cc27ac6bb099b01a3dd23.dir
+      size: 2215355
+      nfiles: 1
+    - path: reports/metrics.json
       hash: md5
-      md5: d5e262aeaf49a776c685aeff765d76a2
-      size: 176
+      md5: e622227a4e834a535902183b2619e556
+      size: 175

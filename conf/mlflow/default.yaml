@@ -1,0 +1,2 @@
+experiment_name: titanic-training
+tracking_uri: ${oc.env:MLFLOW_TRACKING_URI,mlruns}
