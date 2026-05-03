@@ -23,7 +23,7 @@ def load_raw_data(cfg: DictConfig) ->pd.DataFrame:
     train_df = pd.read_csv(train_path)
     # test_df = pd.read_csv(test_path)
 
-    logger.info("Loaded train: %s rows: %s rows", len(train_df))
+    logger.info("Loaded train: %s rows:", len(train_df))
 
     _validate_schema(train_df)
 

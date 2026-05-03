@@ -14,7 +14,7 @@ training:
   metrics_output_dir: reports/
 
 model:
-  name: random_forest
+  name: logistic
   # logistic params
   C: 1.0
   max_iter: 1000

@@ -50,7 +50,7 @@ stages:
         model.max_depth: 8
         model.max_iter: 1000
         model.n_estimators: 200
-        model.name: random_forest
+        model.name: logistic
         training.random_state: 42
         training.test_size: 0.2
     outs:
@@ -61,10 +61,10 @@ stages:
       nfiles: 5
     - path: models/
       hash: md5
-      md5: 83d36f66077cc27ac6bb099b01a3dd23.dir
-      size: 2215355
-      nfiles: 1
+      md5: eec8b05b65f8ff6e8e859bccc4526668.dir
+      size: 2220789
+      nfiles: 2
     - path: reports/metrics.json
       hash: md5
-      md5: e622227a4e834a535902183b2619e556
-      size: 175
+      md5: ce0fc07ff570ea3f2e401802bd179ac1
+      size: 171
